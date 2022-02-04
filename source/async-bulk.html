@@ -29,8 +29,9 @@
   <p>A good example of this is the <a href="https://hl7.org/fhir/uv/bulkdata/export.html">$export operation</a>, where
     simple searches may result in large amounts of data. </p>
   <p>The asynchronous request pattern, based on <a href="https://tools.ietf.org/html/rfc7240#section-4.1">rfc 7240</a>,
-    caters to this use case and is applicable for for use in <a href="operations.html">Operations</a> and <a
-      href="search.html">search</a> interactions. Servers may choose which interactions the pattern should be supported
+    caters to this use case and is applicable for for use in <a href="operations.html">Operations</a> and
+    <a href="http.html">Defined Interactions</a> interactions. Servers may choose which interactions the pattern should be
+    supported
     on (if at all).</p>
 
   <h3 id="kick-off-request">Kick-off Request</h3>
@@ -63,6 +64,9 @@
         content type of <code>application/fhir+ndjson</code> as well as abbreviated representations including
         <code>application/ndjson</code> and <code>ndjson</code>.
       </p>
+      <p>For requests types where the server supports either the Asynchronous Bulk Data Request pattern or the <a
+          href="async-bundle.html">Asynchronous Interaction Request</a> pattern,
+        requests that include the <code>_outputFormat</code> parameter SHALL trigger the Asynchronous Bulk Data Request pattern.</p>
     </li>
   </ul>
 
@@ -82,12 +86,12 @@
 
   <h3 id="delete-request">Delete Request</h3>
 
-  After a Bulk Data request has been started, a client MAY send a http DELETE request to the URL provided in the
+  <p>After a Bulk Data request has been started, a client MAY send a http DELETE request to the URL provided in the
   <code>Content-Location</code> header to cancel the request. If the request has been completed, a server MAY use the
   request as a signal that a client is done retrieving files and that it is safe for the sever to remove those from
   storage. Following the delete request, when subsequent requests are made to the polling location, the server SHALL
   return a <code>404 Not Found</code> error and an associated <a href="OperationOutcome.html">OperationOutcome
-    Resource</a>.
+    Resource</a></p>.
 
   <h5 id="delete-response---success">Response - Success</h5>
   <ul>
@@ -247,7 +251,7 @@
       <tr>
         <td><code>deleted</code></td>
         <td><span class="label label-success">optional</span></td>
-        <td>JOSN array</td>
+        <td>JSON array</td>
         <td>An array of deleted file items following the same structure as the <code>output</code> array.
           <br />
           <br />
@@ -256,7 +260,7 @@
           timestamp parameter such as <code>_since</code> is supported by the request type and supplied in the kick-off
           request, this array SHOULD be populated with output files containing
           FHIR Transaction Bundles that indicate which FHIR resources match the kick-off request criteria, but have been
-          deleted subsequent to the timestamp. If no resources have been deleted, the
+          deleted subsequent to the timestamp. If no resources have been deleted, or the
           timestamp parameter was not supplied, or the server has other reasons to avoid exposing these data,
           the server MAY omit this key or MAY return an empty array. Resources that appear in the 'deleted' section of
           an export manifest SHALL NOT appear in the 'output' section of the manifest.
